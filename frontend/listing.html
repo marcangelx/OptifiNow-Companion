@@ -50,7 +50,7 @@
 
   <!-- AI Chatbot -->
   <div id="chatWidget">
-    <div id="chatPanel" class="chat-panel hidden">
+    <div id="chatPanel" class="chat-panel">
       <div class="chat-header">
         <div class="chat-header-info">
           <div class="chat-avatar">AI</div>
@@ -61,9 +61,7 @@
         </div>
         <button class="chat-close" onclick="toggleChat()">&#x2715;</button>
       </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="chat-bubble bot">Hi! I'm your OptifiNow assistant. How can I help you today?</div>
-      </div>
+      <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()" />
         <button class="chat-send" onclick="sendMessage()"><i data-lucide="send"></i></button>

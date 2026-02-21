@@ -568,3 +568,20 @@ button:disabled { background: #93c5fd; cursor: not-allowed; }
   color: #fff;
 }
 .onboarding-toggle-on:hover { background: #1d4ed8; }
+
+/* ── "Where do I start?" quick-reply button ── */
+.where-do-i-start-btn {
+  align-self: flex-start;
+  width: auto;
+  background: none;
+  border: 1.5px solid #2563eb;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-top: 2px;
+  transition: background 0.15s, color 0.15s;
+}
+.where-do-i-start-btn:hover { background: #2563eb; color: #fff; }

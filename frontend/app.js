@@ -236,7 +236,7 @@ const ONBOARDING_STEPS = {
 
 let tourSteps = [];
 let currentTourStep = -1;
-let onboardingEnabled = false;
+let onboardingEnabled = localStorage.getItem("onboardingEnabled") !== "false";
 
 function clearHighlights() {
   document.querySelectorAll(".ui-highlight").forEach(el => {
@@ -281,8 +281,10 @@ function updateOnboardingToggle() {
 
 function toggleOnboarding() {
   if (onboardingEnabled) {
+    localStorage.setItem("onboardingEnabled", "false");
     endTour();
   } else {
+    localStorage.setItem("onboardingEnabled", "true");
     const role = localStorage.getItem("selectedRole") || "Sales Rep";
     startTour(role);
   }
@@ -293,6 +295,7 @@ function startTour(role) {
   if (tourSteps.length === 0) return;
   onboardingEnabled = true;
   updateOnboardingToggle();
+  removeWhereDoIStartBtn();
   currentTourStep = 0;
   renderTourStep(0);
 }
@@ -378,6 +381,53 @@ function endTour() {
       messages.scrollTop = messages.scrollHeight;
     }
   }
+  injectWhereDoIStartBtn();
+}
+
+// ── Proactive greeting ──
+function buildProactiveGreeting(role) {
+  const user = MOCK_USERS[role];
+  const ctx = getContext(role);
+  const firstName = user ? user.name.split(" ")[0] : role;
+
+  const openers = {
+    "Sales Rep": `Hey ${firstName}! You're in the ${ctx.module} module — ${ctx.crmState.summary}. Want me to help you prioritize?`,
+    "Manager":   `Hey ${firstName}! Here's what's on your radar: ${ctx.crmState.summary}. Want me to suggest how to course-correct?`,
+    "Admin":     `Hey ${firstName}! A couple things need attention in ${ctx.module}: ${ctx.crmState.summary}. Want me to walk you through what to tackle first?`,
+  };
+
+  return openers[role] || `Hi! You're in the ${ctx.module} module. Here's what's happening: ${ctx.crmState.summary}. How can I help?`;
+}
+
+// ── "Where do I start?" button ──
+function injectWhereDoIStartBtn() {
+  if (document.getElementById("whereDoIStartBtn")) return;
+  const messages = document.getElementById("chatMessages");
+  if (!messages) return;
+  const btn = document.createElement("button");
+  btn.id = "whereDoIStartBtn";
+  btn.className = "where-do-i-start-btn";
+  btn.textContent = "Where do I start?";
+  btn.onclick = handleWhereDoIStart;
+  messages.appendChild(btn);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function removeWhereDoIStartBtn() {
+  const btn = document.getElementById("whereDoIStartBtn");
+  if (btn) btn.remove();
+}
+
+async function handleWhereDoIStart() {
+  removeWhereDoIStartBtn();
+  const messages = document.getElementById("chatMessages");
+  const userBubble = document.createElement("div");
+  userBubble.className = "chat-bubble user";
+  userBubble.textContent = "Where do I start?";
+  messages.appendChild(userBubble);
+  messages.scrollTop = messages.scrollHeight;
+  const role = localStorage.getItem("selectedRole") || "Sales Rep";
+  await fetchNextSteps(role, messages);
 }
 
 // ── AI Chatbot ──
@@ -397,6 +447,23 @@ function appendBotBubble(text, messages) {
   botBubble.textContent = text;
   messages.appendChild(botBubble);
   messages.scrollTop = messages.scrollHeight;
+}
+
+async function fetchNextSteps(role, messages) {
+  const ctx = getContext(role);
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: ctx.role, module: ctx.module, crmState: ctx.crmState }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const reply = data.steps ? data.steps.join("\n") : "No steps returned.";
+    appendBotBubble(reply, messages);
+  } catch (err) {
+    appendBotBubble("Could not reach the backend. Make sure the server is running.", messages);
+  }
 }
 
 async function sendMessage() {
@@ -422,21 +489,9 @@ async function sendMessage() {
   const highlightedLabel = highlightUI(text);
 
   if (text.toLowerCase() === "where do i start?") {
+    removeWhereDoIStartBtn();
     const role = localStorage.getItem("selectedRole") || "Sales Rep";
-    const ctx = getContext(role);
-    try {
-      const res = await fetch(BACKEND_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: ctx.role, module: ctx.module, crmState: ctx.crmState }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const reply = data.steps ? data.steps.join("\n") : "No steps returned.";
-      appendBotBubble(reply, messages);
-    } catch (err) {
-      appendBotBubble("Could not reach the backend. Make sure the server is running.", messages);
-    }
+    await fetchNextSteps(role, messages);
   } else {
     const reply = highlightedLabel
       ? `I've highlighted the ${highlightedLabel} on the page for you.`
@@ -453,4 +508,14 @@ if (document.getElementById("contactsBody")) {
     const role = localStorage.getItem("selectedRole") || "Guest";
     helloText.textContent = `Hello, ${role}!`;
   }
+  const messages = document.getElementById("chatMessages");
+  if (messages && role) {
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble bot";
+    bubble.textContent = buildProactiveGreeting(role);
+    messages.appendChild(bubble);
+  }
+  updateOnboardingToggle();
+  if (onboardingEnabled) startTour(role);
+  else injectWhereDoIStartBtn();
 }
