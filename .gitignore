@@ -1,5 +1,6 @@
 # Node
 backend/node_modules/
+backend/.env
 
 # Terraform — state files can contain sensitive values (API keys, ARNs)
 terraform/.terraform/

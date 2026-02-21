@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    archive = {
-      source  = "hashicorp/archive"
-      version = "~> 2.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.0"
@@ -28,24 +24,8 @@ provider "aws" {
   }
 }
 
-module "lambda" {
-  source = "./modules/lambda"
-
-  project_name   = var.project_name
-  environment    = var.environment
-  openai_api_key = var.openai_api_key
-  # Path is relative to THIS file's directory — points to the backend folder
-  backend_path   = "${path.module}/../backend"
-}
-
-module "api_gateway" {
-  source = "./modules/api_gateway"
-
-  project_name = var.project_name
-  environment  = var.environment
-  lambda_arn   = module.lambda.lambda_arn
-  lambda_name  = module.lambda.lambda_name
-}
+# Lambda + API Gateway modules removed — backend runs locally via server.js
+# Modules kept in ./modules/ for future cloud deployment if needed
 
 module "frontend" {
   source = "./modules/frontend"

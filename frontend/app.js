@@ -1,4 +1,4 @@
-const BACKEND_URL = "https://jw1usdp99i.execute-api.us-east-1.amazonaws.com/ask";
+const BACKEND_URL = "http://localhost:3000/ask";
 
 const MOCK_CONTEXTS = [
   {

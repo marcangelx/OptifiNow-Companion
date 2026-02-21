@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const OpenAI = require("openai");
 
@@ -45,7 +46,7 @@ Use plain language. One sentence per step. No markdown. No fluff.`;
     res.json({ steps });
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: "OpenAI request failed. Check your API key." });
+    res.status(500).json({ error: err.message });
   }
 });
 

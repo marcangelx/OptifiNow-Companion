@@ -16,8 +16,3 @@ variable "project_name" {
   default     = "optfinow-companion"
 }
 
-variable "openai_api_key" {
-  description = "OpenAI API key injected into Lambda as an environment variable"
-  type        = string
-  sensitive   = true
-}
