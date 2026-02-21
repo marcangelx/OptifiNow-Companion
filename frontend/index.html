@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OptifiNow Companion</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="top-bar">
+    <div class="logo">OptifiNow</div>
+    <div class="tagline">AI Onboarding Companion</div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h1>What should I do next?</h1>
+      <p class="subtitle">Select your role and get personalized guidance.</p>
+
+      <div class="form-group">
+        <label for="roleSelect">I am a...</label>
+        <select id="roleSelect">
+          <option value="Sales Rep">Sales Rep</option>
+          <option value="Manager">Manager</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="context-preview" id="contextPreview"></div>
+
+      <button id="askBtn" onclick="askCompanion()">
+        <span id="btnText">Get My Next Steps</span>
+        <span id="btnSpinner" class="spinner hidden"></span>
+      </button>
+
+      <div id="responsePanel" class="response-panel hidden">
+        <h2>Your next steps</h2>
+        <ol id="stepsList"></ol>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

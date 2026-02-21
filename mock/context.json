@@ -1,0 +1,17 @@
+[
+  {
+    "role": "Sales Rep",
+    "module": "Leads",
+    "crmState": { "summary": "12 new leads uncontacted, pipeline empty" }
+  },
+  {
+    "role": "Manager",
+    "module": "Dashboard",
+    "crmState": { "summary": "3 reps inactive this week, Q2 quota at 40%" }
+  },
+  {
+    "role": "Admin",
+    "module": "Settings",
+    "crmState": { "summary": "Email integration not configured, 2 users pending setup" }
+  }
+]

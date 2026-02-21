@@ -1,0 +1,14 @@
+{
+  "name": "optfinow-companion-backend",
+  "version": "1.0.0",
+  "description": "OptifiNow AI Companion backend",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "openai": "^4.0.0"
+  }
+}
