@@ -145,19 +145,6 @@ function filterContacts() {
 }
 
 // ── UI Highlighting ──
-const HIGHLIGHT_RULES = [
-  { keywords: ["view", "see", "read", "look", "open"],   selector: ".icon-btn-view",   label: "View buttons",        tip: "Click to view this contact" },
-  { keywords: ["update", "edit", "modify", "change"],    selector: ".icon-btn-update", label: "Update buttons",      tip: "Click to edit this contact" },
-  { keywords: ["delete", "remove", "trash"],             selector: ".icon-btn-delete", label: "Delete buttons",      tip: "Click to delete this contact" },
-  { keywords: ["add", "create", "new"],                  selector: ".btn-primary",     label: "Add Contact button",  tip: "Click to add a new contact" },
-  { keywords: ["search", "find", "filter"],              selector: "#searchInput",     label: "search bar",          tip: "Type here to search contacts" },
-];
-
-const MODULE_DEFAULTS = {
-  "Leads":     ".icon-btn-view",
-  "Dashboard": "#searchInput",
-  "Settings":  ".btn-primary",
-};
 
 const ONBOARDING_STEPS = {
   "Sales Rep": [
@@ -245,30 +232,14 @@ function clearHighlights() {
   });
 }
 
-function highlightUI(text) {
-  clearHighlights();
-  const lower = text.toLowerCase();
-  let matched = HIGHLIGHT_RULES.find(rule => rule.keywords.some(k => lower.includes(k)));
-
-  if (!matched) {
-    const role = localStorage.getItem("selectedRole") || "Sales Rep";
-    const ctx = getContext(role);
-    const selector = MODULE_DEFAULTS[ctx.module];
-    if (selector) {
-    const els = document.querySelectorAll(selector);
-    if (els.length > 0) els.forEach(el => el.classList.add("ui-highlight"));
-  }
-    return null;
-  }
-
-  const els = document.querySelectorAll(matched.selector);
-  if (els.length === 0) return null;
-  els.forEach(el => {
-    el.classList.add("ui-highlight");
-    el.setAttribute("data-tip", matched.tip);
-  });
-  setTimeout(clearHighlights, 4000);
-  return matched.label;
+function applyHighlight(selector) {
+  document.querySelectorAll(".ai-highlight").forEach(el => el.classList.remove("ai-highlight"));
+  if (!selector) return;
+  const targets = document.querySelectorAll(selector);
+  if (targets.length === 0) return;
+  targets.forEach(el => el.classList.add("ai-highlight"));
+  targets[0].scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => document.querySelectorAll(".ai-highlight").forEach(el => el.classList.remove("ai-highlight")), 6000);
 }
 
 // ── Onboarding Tour ──
@@ -449,18 +420,19 @@ function appendBotBubble(text, messages) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-async function fetchNextSteps(role, messages) {
+async function fetchNextSteps(role, messages, userMessage = "What should I do next?") {
   const ctx = getContext(role);
   try {
     const res = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: ctx.role, module: ctx.module, crmState: ctx.crmState }),
+      body: JSON.stringify({ role: ctx.role, module: ctx.module, crmState: ctx.crmState, userMessage }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const reply = data.steps ? data.steps.join("\n") : "No steps returned.";
     appendBotBubble(reply, messages);
+    applyHighlight(data.highlight);
   } catch (err) {
     appendBotBubble("Could not reach the backend. Make sure the server is running.", messages);
   }
@@ -486,18 +458,9 @@ async function sendMessage() {
     return;
   }
 
-  const highlightedLabel = highlightUI(text);
-
-  if (text.toLowerCase() === "where do i start?") {
-    removeWhereDoIStartBtn();
-    const role = localStorage.getItem("selectedRole") || "Sales Rep";
-    await fetchNextSteps(role, messages);
-  } else {
-    const reply = highlightedLabel
-      ? `I've highlighted the ${highlightedLabel} on the page for you.`
-      : "Backend functionality coming soon!";
-    setTimeout(() => appendBotBubble(reply, messages), 500);
-  }
+  if (text.toLowerCase() === "where do i start?") removeWhereDoIStartBtn();
+  const role = localStorage.getItem("selectedRole") || "Sales Rep";
+  await fetchNextSteps(role, messages, text);
 }
 
 if (document.getElementById("contactsBody")) {

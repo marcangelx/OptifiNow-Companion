@@ -17,33 +17,42 @@ app.use((req, res, next) => {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 app.post("/ask", async (req, res) => {
-  const { role = "New User", module = "Dashboard", crmState } = req.body;
+  const { role = "New User", module = "Dashboard", crmState, userMessage = "What should I do next?" } = req.body;
   const summary = crmState?.summary || "No context available";
 
   const systemPrompt = `You are an onboarding assistant for OptifiNow CRM.
 The user is a ${role} currently in the ${module} module.
 CRM context: ${summary}
-Reply with exactly 2-3 short, actionable next steps numbered 1, 2, 3.
-Use plain language. One sentence per step. No markdown. No fluff.`;
+
+Respond ONLY with a JSON object with two fields:
+1. "steps": an array of exactly 2-3 short, actionable next steps. Plain language, one sentence each.
+2. "highlight": the single CSS selector of the most relevant UI element to focus on, chosen from this list:
+   - ".icon-btn-view"   (view/read actions)
+   - ".icon-btn-update" (edit/update actions)
+   - ".icon-btn-delete" (delete/remove actions)
+   - ".btn-primary"     (add/create actions)
+   - "#searchInput"     (search/find/filter actions)
+   - null               (if no element is clearly relevant)
+
+Example: {"steps":["Do this first.","Then do this."],"highlight":".btn-primary"}`;
 
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: "What should I do next?" },
+        { role: "user", content: userMessage },
       ],
-      max_tokens: 200,
+      response_format: { type: "json_object" },
+      max_tokens: 300,
       temperature: 0.4,
     });
 
-    const text = completion.choices[0].message.content || "";
-    const steps = text
-      .split("\n")
-      .map((line) => line.replace(/^\d+[\.\)]\s*/, "").trim())
-      .filter((line) => line.length > 0);
+    const parsed = JSON.parse(completion.choices[0].message.content || "{}");
+    const steps = Array.isArray(parsed.steps) ? parsed.steps : [];
+    const highlight = parsed.highlight || null;
 
-    res.json({ steps });
+    res.json({ steps, highlight });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: err.message });

@@ -8,10 +8,8 @@ Built as a hackathon MVP in under 3 hours.
 
 ## What It Does
 
-New CRM users often don't know where to start. This companion eliminates that friction by generating **2-3 short, actionable next steps** based on:
+New CRM users often don't know where to start. This companion eliminates that friction by generating **actionable next steps** based on:
 - The user's **role** (Sales Rep, Manager, Admin)
-- Their **current module** (Leads, Dashboard, Settings)
-- Their **CRM state** (pipeline status, team activity, configuration gaps)
 
 No searching help docs. No generic advice. Just the right next action, right now.
 
@@ -22,11 +20,6 @@ No searching help docs. No generic advice. Just the right next action, right now
 - **Role-aware AI guidance** — Sales Rep, Manager, and Admin each get completely different recommendations
 - **CRM context preview** — The assistant shows the user's module and state before they even ask
 - **OpenAI gpt-4o-mini** — Fast, cost-effective AI with a focused system prompt
-- **Real-time response** — Loading spinner while the AI thinks, animated steps on arrival
-- **Stateless & instant** — No login, no database, no session — just ask and get an answer
-- **Clean embedded UI** — Minimal card design that fits inside any CRM layout
-- **Local dev ready** — `.env` for API key, Express backend, `npx serve` for frontend
-- **AWS-deployable** — Lambda handler + API Gateway + S3 hosting via Terraform modules
 
 ---
 
@@ -37,8 +30,6 @@ No searching help docs. No generic advice. Just the right next action, right now
 | Frontend | HTML + CSS + Vanilla JS |
 | Backend | Node.js + Express |
 | AI | OpenAI API — `gpt-4o-mini` |
-| Infrastructure | AWS Lambda, API Gateway, S3 (Terraform) |
-| Secret management | `.env` via `dotenv` |
 
 ---
 
