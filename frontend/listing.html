@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacts — OptifiNow</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="top-bar">
+    <div class="logo">OptifiNow</div>
+    <div class="tagline">Contacts</div>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:12px;">
+      <span id="helloText" class="nav-link"></span>
+      <button id="onboardingToggle" class="onboarding-toggle" onclick="toggleOnboarding()">Onboarding: OFF</button>
+      <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+    </div>
+  </header>
+
+  <div class="contacts-container">
+    <div class="page-header">
+      <h1>Contacts</h1>
+      <button class="btn-primary" onclick="alert('Add contact — coming soon!')">+ Add Contact</button>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name, email, or company..." oninput="filterContacts()" />
+    </div>
+
+    <table class="contacts-table" id="contactsTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Company</th>
+          <th>Status</th>
+          <th>Last Activity</th>
+          <th>Assigned To</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="contactsBody"></tbody>
+    </table>
+
+    <div class="empty-state" id="emptyState">No contacts match your search.</div>
+  </div>
+
+  <!-- AI Chatbot -->
+  <div id="chatWidget">
+    <div id="chatPanel" class="chat-panel hidden">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">AI</div>
+          <div>
+            <div class="chat-title">OptifiNow Assistant</div>
+            <div class="chat-status">Online</div>
+          </div>
+        </div>
+        <button class="chat-close" onclick="toggleChat()">&#x2715;</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble bot">Hi! I'm your OptifiNow assistant. How can I help you today?</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()" />
+        <button class="chat-send" onclick="sendMessage()"><i data-lucide="send"></i></button>
+      </div>
+    </div>
+    <button class="chat-fab" onclick="toggleChat()" title="Chat with AI">
+      <i data-lucide="message-circle"></i>
+    </button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
